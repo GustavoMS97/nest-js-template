@@ -1,0 +1,15 @@
+services:
+  nest-js-template-api:
+    container_name: nest-js-template-api
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:${PORT:-3000}'
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: 'npm run start:dev'
+    restart: always

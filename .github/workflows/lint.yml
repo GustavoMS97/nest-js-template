@@ -1,0 +1,44 @@
+name: Lint & Test
+
+on: [push, pull_request]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:20.12.2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run lint
+        run: yarn lint
+
+      # use only if DB environment is necessary for test during CI
+      - name: Create .env file
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          envkey_DB_HOST: ${{secrets.TEST_DB_HOST}}
+          envkey_DB_PORT: ${{secrets.TEST_DB_PORT}}
+          envkey_DB_USER: ${{secrets.TEST_DB_USER}}
+          envkey_DB_PASS: ${{secrets.TEST_DB_PASS}}
+          envkey_DB_NAME: ${{secrets.TEST_DB_NAME}}
+          envkey_DB_SSL: ${{secrets.TEST_DB_SSL}}
+
+      - name: Move env files
+        run: "cp .env apps/web/.env 2>/dev/null || :"
+
+      - name: Run tests
+        run: yarn test
