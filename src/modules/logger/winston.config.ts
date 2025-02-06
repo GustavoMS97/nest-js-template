@@ -39,7 +39,7 @@ export function createWinstonConfig(environmentConfig: EnvironmentConfig): winst
       : winston.format.combine(
           winston.format.colorize({ all: true }),
           winston.format.timestamp({ format: timestampWithTimezone }),
-          winston.format.printf(({ level, message, timestamp }) => {
+          winston.format.printf(({ level, message, timestamp }: { level: string; message: string; timestamp: string }) => {
             return `${timestamp} ${level}: ${message}`
           })
         ),
